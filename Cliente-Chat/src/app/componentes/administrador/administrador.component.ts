@@ -9,21 +9,32 @@ import { SocketIOService } from 'src/app/socket-io.service';
 })
 export class AdministradorComponent {
   public message: string;
+  public room: string;
   public userList: any[] = [];
+  public mensajes: any[] = [];
 
   constructor(private socketService: SocketIOService) {
+    this.socketService.loadRooms();
     this.socketService.$userList.subscribe((data) => {
       this.userList = data;
     });
+
+    this.socketService.socket.on("actualizarChat", (data) => {
+      this.mensajes = data;
+    })
   }
 
   public sendMessage(): void {
-    const room = this.userList[0]; // Obtener el primer usuario de la lista
-    this.socketService.sendMessageAsesor({ message: this.message, room });
+    this.socketService.sendMessageAsesor({ message: this.message, room: this.room });
     this.message = '';
   }
 
-  public disconnectUser(room: string): void {
-    this.socketService.disconnectUser(room);
+  public disconnectUser(): void {
+    this.socketService.disconnectUser(this.room, 'asesor');
+  }
+
+  public verChat(token: string){
+    this.room = token;
+    this.socketService.verChat(token);
   }
 }

@@ -1,7 +1,7 @@
 <div>
-  <h2>Cliente</h2>
+  <h2>Usuario</h2>
   <div>
-    <div *ngFor="let mensaje of mensajes">
+    <div *ngFor="let mensaje of mensajes" [ngClass]="mensaje.from">
       <p>{{ mensaje.message }}</p>
     </div>
     <input type="text" [(ngModel)]="message" placeholder="Mensaje">

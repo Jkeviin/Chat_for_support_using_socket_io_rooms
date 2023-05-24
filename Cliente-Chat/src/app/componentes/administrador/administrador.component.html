@@ -1,20 +1,24 @@
-
 <div>
   <h2>Asesor</h2>
   <div *ngIf="userList.length > 0">
     <p>Usuarios en la sala:</p>
     <ul>
-      <li *ngFor="let user of userList">
+      <button *ngFor="let user of userList" (click)="verChat(user)">
         {{ user }}
-        <button (click)="disconnectUser(user)">Desconectar</button>
-      </li>
+      </button>
     </ul>
-  </div>
-  <div *ngIf="userList.length === 0">
+  </div>  <div *ngIf="userList.length === 0">
     <p>No hay usuarios en la sala.</p>
   </div>
-  <div>
-    <input type="text" [(ngModel)]="message" placeholder="Mensaje">
-    <button (click)="sendMessage()">Enviar</button>
-  </div>
+  <ng-container>
+    <div>
+      <button (click)="disconnectUser()">Eliminar Chat</button>
+      <div *ngFor="let mensaje of mensajes" [ngClass]="mensaje.from">
+        <p>{{ mensaje.message }}</p>
+      </div>
+      <input type="text" [(ngModel)]="message" placeholder="Mensaje">
+      <button (click)="sendMessage()">Enviar</button>
+    </div>
+  </ng-container>
+
 </div>

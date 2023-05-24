@@ -7,7 +7,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class SocketIOService {
-  private socket: Socket;
+  public socket: Socket;
 
     // BehaviorSubject variables:
     private userListSubject = new BehaviorSubject<any[]>([]);
@@ -49,12 +49,8 @@ export class SocketIOService {
     this.socket.emit('loadRooms');
   }
 
-  public disconnectAsesor(room: string): void {
-    this.socket.emit('disconnectAsesor', { room });
-  }
-
-  public disconnectUser(room: string): void {
-    this.socket.emit('disconnectUser', { room });
+  public disconnectUser(room: string, tipo: string): void {
+    this.socket.emit('disconnectUser', { room, tipo });
   }
 
   public LoguearAsesor(){
