@@ -23,7 +23,22 @@ const roomAsesor = "asesor";
 io.on("connection", (socket) => {
   function actualizarRooms() {
     socket.join(roomAsesor);
-    io.emit("actualizarRooms", Object.keys(rooms));
+
+    // Obtener los nombres de los rooms
+    const roomNames = Object.keys(rooms);
+
+    // Crear un objeto para almacenar los últimos mensajes
+    const lastMessages = {};
+
+    // Recorrer cada room y obtener el último mensaje
+    roomNames.forEach(roomName => {
+      const roomMessages = rooms[roomName];
+      const lastMessage = roomMessages[roomMessages.length - 1];
+      lastMessages[roomName] = lastMessage;
+    });
+
+    // Emitir la lista de rooms y últimos mensajes al asesor
+    io.emit("actualizarRooms", lastMessages);
   }
 
   // Manejar los mensajes enviados por un usuario
@@ -58,14 +73,19 @@ io.on("connection", (socket) => {
       actualizarRooms();
     }
 
+    const date = new Date();
+    const hora = date.getHours() + ":" + date.getMinutes();
+
     if (socket.room) {
       // Emitir el mensaje desde el usuario
-      rooms[socket.room].push({ message, from: "user" });
+      rooms[socket.room].push({ message, from: "user", hora });
       io.to(socket.room).emit("actualizarChat", rooms[socket.room]);
     } else {
-      roomsBot[socket.roomBot].push({ message, from: "user" });
+
+      roomsBot[socket.roomBot].push({ message, from: "user", hora });
       io.to(socket.roomBot).emit("actualizarChat", roomsBot[socket.roomBot]);
     }
+    actualizarRooms();
   });
 
   // ver chat de room
@@ -90,8 +110,14 @@ io.on("connection", (socket) => {
   socket.on("sendMessageAsesor", (data) => {
     const { message, room } = data;
     // Emitir el mensaje a todos los usuarios en la sala
-    rooms[room].push({ message, from: "asesor" });
+    // hora actual formato 12:00
+    const date = new Date();
+    const hora = date.getHours() + ":" + date.getMinutes();
+
+    rooms[room].push({ message, from: "asesor", hora });
     io.to(room).emit("actualizarChat", rooms[room]);
+
+    actualizarRooms();
   });
 
   // cargar la lista de rooms
@@ -103,7 +129,7 @@ io.on("connection", (socket) => {
   socket.on("disconnectUser", (data) => {
     const { room, tipo } = data;
 
-    if(rooms > 0){
+    if (rooms > 0) {
       if (tipo === "usuario") {
         rooms[room].push({
           message: "El usuario ha abandonado en chat",
@@ -118,7 +144,7 @@ io.on("connection", (socket) => {
         io.to(room).emit("actualizarChat", rooms[room]);
       }
     }
-   
+
 
     // Eliminar room
     delete rooms[room];

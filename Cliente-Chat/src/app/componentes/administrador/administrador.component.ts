@@ -13,10 +13,28 @@ export class AdministradorComponent {
   public userList: any[] = [];
   public mensajes: any[] = [];
 
+  // Elegir room:
+  public roomElegido: string = '';
+
+  // cantidad de rooms:
+  public cantidadRooms: number = 0;
+
+  // click ocultar rooms:
+  public roomsActivo: boolean = false;
+  public quiarChats: boolean = true;
+
+  ocultar(){
+    this.roomsActivo = !this.roomsActivo;
+    this.quiarChats = !this.quiarChats;
+
+  }
+
   constructor(private socketService: SocketIOService) {
     this.socketService.loadRooms();
     this.socketService.$userList.subscribe((data) => {
       this.userList = data;
+      // para ver cuantos usuarios hay en el chat:
+      this.cantidadRooms = Object.keys(this.userList).length
     });
 
     this.socketService.socket.on("actualizarChat", (data) => {
@@ -34,6 +52,7 @@ export class AdministradorComponent {
   }
 
   public verChat(token: string){
+    this.roomElegido = token;
     this.room = token;
     this.socketService.verChat(token);
   }
